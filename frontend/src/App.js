@@ -1,10 +1,22 @@
 import React, { Component } from "react";
+import "./App.css";
+//auto sugest
+
+// Fotos
 import anaca from "./pics/anaca.jpg";
 import anuBranco from "./pics/anu-branco.jpg";
 import cardealDaAmazonia from "./pics/cardeal-da-amazonia.jpg";
 import chorao from "./pics/chorao.jpeg";
 import curicaUrubu from "./pics/curica-urubu.jpg";
 import garibaldi from "./pics/garibaldi.jpg";
+import bemTeVi from "./pics/bem-te-vi.jpg";
+import guaracavaDeTopeteUniforme from "./pics/guaracava-de-topete-uniforme.jpg";
+import macaricoDePernaAmarela from "./pics/macarico-de-perna-amarela.jpg";
+import sairaAmarela from "./pics/saira-amarela.jpg";
+import uirapuruLaranja from "./pics/uirapuru-laranja.jpg";
+import viuvinhaDeOculos from "./pics/viuvinha-de-oculos.jpg";
+import gaviaoBelo from "./pics/gaviao-belo.jpg";
+import cabecaDeOuro from "./pics/cabeca-de-ouro.jpg";
 import sabiaPoca from "./pics/sabia-poca.jpg";
 import AnambéDeCoroa from "./pics/AnambéDeCoroa.jpg";
 import ArapaçuGalinha from "./pics/ArapaçuGalinha.jpg";
@@ -15,17 +27,17 @@ import PicaPauDeColeira from "./pics/PicaPauDeColeira.jpg";
 import PicaPauVerdeBarrado from "./pics/PicaPauVerdeBarrado.jpg";
 import TucanoDeBicoPreto from "./pics/tucano-de-bico-preto.jpg";
 import TucanoDePapoBranco from "./pics/tucanoDePapoBranco.jpg";
-
 import cambacica from "./pics/cambacica.jpg";
 import Jacamaraçu from "./pics/Jacamaraçu.jpg";
 import mariquita from "./pics/mariquita.jpg";
-
 import SurucuáPequeno from "./pics/SurucuáPequeno.jpg";
 import Tucanaçu from "./pics/Tucanaçu.jpg";
-
 import savacu from "./pics/savacu.jpg";
 import trincaFerro from "./pics/trinca-ferro.jpg";
 import maritacaDeCabecaAzul from "./pics/maritaca-de-cabeca-azul.jpg";
+
+// Componentes
+import Landing from "./components/Landing";
 
 import "./App.css";
 class Option extends React.Component {
@@ -44,18 +56,45 @@ class Option extends React.Component {
     );
   }
 }
+class RespostaErrada extends React.Component {
+  render() {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 5,
+          width: "100%",
+          top: "-20px",
+          left: 0
+        }}
+        className="alert alert-danger d-flex"
+        role="alert"
+      >
+        {this.props.resErr}
+        <button onClick={this.props.closeError} className="text-red ml-auto">
+          X
+        </button>
+      </div>
+    );
+  }
+}
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       showEspecie: false,
+      suggestions: [],
       especie: "",
       currentIndex: 0,
       alerta: false,
+      respErrado: false,
+      respostaEscritaErrada: "",
       currentBird: {},
       certo: 0,
       errado: 0,
+      active: false,
+      regras: false,
 
       valendoJogo: false,
       birds: [
@@ -207,11 +246,60 @@ export default class App extends Component {
           picture: maritacaDeCabecaAzul,
 
           nome_comum: "Maritaca-de-Cabeca-Azul"
+        },
+        {
+          id: 26,
+          picture: cabecaDeOuro,
+
+          nome_comum: "Cabeça-de-ouro"
+        },
+        {
+          id: 27,
+          picture: gaviaoBelo,
+
+          nome_comum: "Gavião-belo"
+        },
+        {
+          id: 28,
+          picture: viuvinhaDeOculos,
+
+          nome_comum: "Viuvinha-de-oculos"
+        },
+        {
+          id: 29,
+          picture: uirapuruLaranja,
+
+          nome_comum: "Uirapuru-laranja"
+        },
+        {
+          id: 30,
+          picture: sairaAmarela,
+
+          nome_comum: "Saira-amarela"
+        },
+        {
+          id: 31,
+          picture: macaricoDePernaAmarela,
+
+          nome_comum: "Macarico-de-perna-amarela"
+        },
+        {
+          id: 32,
+          picture: guaracavaDeTopeteUniforme,
+
+          nome_comum: "Guaracava-de-topete-uniforme"
+        },
+        {
+          id: 33,
+          picture: bemTeVi,
+
+          nome_comum: "Bem-te-vi"
         }
       ],
       random: 0
     };
   }
+
   onChange = e => {
     this.setState({
       especie: e.target.value
@@ -228,14 +316,17 @@ export default class App extends Component {
       alerta: false,
       certo: 0,
       errado: 0,
+      regras: false,
+      respErrado: false,
       showEspecie: false,
       valendoJogo: false
     });
   };
   startGame = e => {
     const min = 0;
-    const max = 25;
+    const max = 33;
     const rand = Math.floor(Math.random() * max + min);
+
     this.setState({
       random: rand,
       certo: 0,
@@ -244,21 +335,41 @@ export default class App extends Component {
       alerta: false,
       valendoJogo: true,
       showEspecie: false,
+      regras: false,
+      respErrado: false,
       currentBird: this.state.birds[rand]
     });
   };
+  closeError = e => {
+    this.setState({ respErrado: false, active: false });
+  };
+  mostrarRegras = e => {
+    this.setState({ regras: true });
+  };
+
   adivinharResposta = e => {
     let answer = e.target.textContent;
 
     let correctAnswer = this.state.currentBird.nome_comum;
     if (answer === correctAnswer) {
-      this.setState({ certo: this.state.certo + 1 });
+      this.setState({
+        certo: this.state.certo + 1,
+        respErrado: false,
+        active: false
+      });
     } else {
-      this.setState({ errado: this.state.errado + 1 });
+      this.setState({
+        errado: this.state.errado + 1,
+        respErrado: true,
+        active: true,
+
+        respostaEscritaErrada: `A especie certa era: ${correctAnswer}`
+      });
     }
 
     this.setState({ currentIndex: this.state.currentIndex + 1 });
-    const rand = Math.floor(Math.random() * 25 + 0);
+    const rand = Math.floor(Math.random() * 33 + 0);
+
     this.setState({ currentBird: this.state.birds[rand], random: rand });
     if (this.state.currentIndex + 1 === 10) {
       this.setState({
@@ -268,7 +379,6 @@ export default class App extends Component {
 
       return;
     }
-    // For accomplishing a better readible equality-check.
   };
 
   render() {
@@ -285,37 +395,82 @@ export default class App extends Component {
 
     if (valendoJogo) {
       for (let i = random; i < random + 4; i++) {
-        options.push(
-          <Option
-            key={i}
-            optionValue={this.state.birds[i].nome_comum}
-            triggerProcess={this.adivinharResposta}
-            activeGame={this.state.valendoJogo}
-          />
-        );
+        if (i > 32) {
+          options.push(
+            <Option
+              optionValue={this.state.birds[i - 7].nome_comum}
+              triggerProcess={this.adivinharResposta}
+              activeGame={this.state.valendoJogo}
+            />
+          );
+        } else {
+          options.push(
+            <Option
+              optionValue={this.state.birds[i].nome_comum}
+              triggerProcess={this.adivinharResposta}
+              activeGame={this.state.valendoJogo}
+            />
+          );
+        }
       }
-      var value1 = Math.floor(Math.random() * (5 - 1));
-
-      var opt1 = options[value1];
-
-      options.pop(opt1);
+      let randOpt1 = Math.floor(Math.random() * 4 + 0);
+      console.log(randOpt1);
+      switch (randOpt1) {
+        case 0:
+          var op1 = options[0];
+          var op2 = options[1];
+          var op3 = options[2];
+          var op4 = options[3];
+        case 1:
+          var op1 = options[1];
+          var op2 = options[2];
+          var op3 = options[3];
+          var op4 = options[0];
+        case 2:
+          var op1 = options[2];
+          var op2 = options[3];
+          var op3 = options[1];
+          var op4 = options[0];
+        case 3:
+          var op1 = options[3];
+          var op2 = options[2];
+          var op3 = options[1];
+          var op4 = options[0];
+      }
 
       valendoConteudo = (
         <div>
-          <div className="card ml-auto mr-auto" style={{ width: "90%" }}>
+          <div
+            className="card ml-auto mr-auto"
+            style={{ width: "90%", maxWidth: "400px" }}
+          >
             <img
               src={this.state.currentBird.picture}
-              style={{ height: "400px", maxWidth: "400px" }}
+              style={{ maxHeight: "330px", maxWidth: "400px" }}
               alt=""
             />
             <div className="card-body">
-              {opt1}
-              {options}
+              {op1}
+              {op2}
+              {op3}
+              {op4}
+
+              {/* {options} */}
             </div>
           </div>
 
           <div className="respostas" />
         </div>
+      );
+    }
+    let errados = [];
+
+    if (this.state.respErrado) {
+      errados.push(
+        <RespostaErrada
+          closeError={this.closeError}
+          resErr={this.state.respostaEscritaErrada}
+        />
       );
     }
     let showEsp;
@@ -351,87 +506,117 @@ export default class App extends Component {
     }
 
     return (
-      <div className="vh-100">
+      <div style={{ backgroundColor: "rgba(127, 105, 94, 0.85)" }}>
         <nav
-          className="navbar navbar-light"
-          style={{ backgroundColor: "#e3f2fd" }}
+          className="navbar navbar-light text-white"
+          style={{ backgroundColor: "rgba(249, 201, 144, 0.7)" }}
         >
-          <a className="navbar-brand" href="#">
-            GuessBird
+          <a
+            href="https://www.murukututu.com"
+            target="_blank"
+            className="navbar-brand"
+          >
+            Murukututu
+            <span style={{ color: "rgb(249, 251, 144)" }}>.com</span>
           </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon" />
-          </button>
 
-          <div
-            className="collapse navbar-collapse text-center"
-            id="navbarSupportedContent"
-          >
-            <ul className="navbar-nav mr-auto">
-              <li className="nav-item active">
-                <a className="nav-link" href="#" onClick={this.startGame}>
-                  Comecar jogo <span className="sr-only">(current)</span>
-                </a>
-              </li>
-              <li>
-                <a className="nav-link" href="#" onClick={this.startGame}>
-                  Reset <span className="sr-only">(current)</span>
-                </a>
-              </li>
-
-              <li className="nav-item">
-                <a
-                  className="nav-link disabled"
-                  href="#"
-                  tabIndex="-1"
-                  aria-disabled="true"
-                >
-                  Voce acertou: {this.state.certo}
-                </a>
-              </li>
-            </ul>
-            <form className="form-inline my-2 my-lg-0" onSubmit={this.onSubmit}>
-              <input
-                className="form-control mr-sm-2"
-                type="search"
-                value={this.state.especie}
-                placeholder="Procurar Especie"
-                aria-label="Search"
-                onChange={this.onChange}
-              />
-              <button
-                className="btn btn-outline-success my-2 my-sm-0 ml-auto mr-auto"
-                type="submit"
+          <ul className="nav ml-auto d-flex">
+            <li className="nav-item ">
+              <a
+                style={{ fontSize: "12px", marginRight: "-15px" }}
+                className="nav-link"
+                onClick={this.startGame}
               >
-                Procurar Passaros
-              </button>
-            </form>
-          </div>
+                Comecar jogo <span className="sr-only">(current)</span>
+              </a>
+            </li>
+            <li>
+              <a
+                style={{ fontSize: "12px", marginRight: "-15px" }}
+                className="nav-link"
+                onClick={this.reiniciarJogo}
+              >
+                Reiniciar <span className="sr-only">(current)</span>
+              </a>
+            </li>
+          </ul>
         </nav>
 
-        {this.state.alerta ? (
-          <div className="alert alert-primary" role="alert">
-            voce acertou: {this.state.certo}
+        <div className={this.state.active ? "owl password" : "owl"}>
+          <div className={this.state.active ? "hand password" : "hand"} />
+          <div
+            className={
+              this.state.active ? "hand hand-r password" : "hand hand-r"
+            }
+          />
+          <div className={this.state.active ? "arms password" : "arms"}>
+            <div className={this.state.active ? "arm password" : "arm"} />
+            <div
+              className={this.state.active ? "arm arm-r password" : "arm arm-r"}
+            />
           </div>
-        ) : null}
-        <h3 className="text-center mt-3 mb-3">Guess what Bird!</h3>
-        {valendoConteudo}
-        {showEsp}
-        <div className="certo-errado d-flex justify-center mt-2">
-          <button className="text-light btn-success w-50">
-            Certo : {this.state.certo}
-          </button>
-          <button className="text-light btn-danger w-50">
-            Errado : {this.state.errado}
-          </button>
+        </div>
+        <div className={this.state.active ? "form password" : "form"}>
+          {/* <p>Email</p> */}
+          <div className={this.state.active ? "control password" : "control"}>
+            <label
+              htmlFor="email"
+              className={
+                this.state.active ? "fa fa-envelope password" : "fa fa-envelope"
+              }
+            />
+          </div>
+
+          <div className={this.state.active ? "control password" : "control"}>
+            <label
+              htmlFor="password"
+              className={
+                this.state.active ? "fa fa-asterisk password" : "fa fa-asterisk"
+              }
+            />
+
+            <div
+              style={{ maxWidth: "450px", minHeight: "80vh" }}
+              className="mr-auto ml-auto  "
+            >
+              {this.state.alerta ? (
+                <div className="alert alert-primary" role="alert">
+                  voce acertou: {this.state.certo}
+                </div>
+              ) : null}
+              {this.state.valendoJogo ? null : (
+                <h3 className="text-center text-white mt-3 mb-3">
+                  Guess what Bird!
+                </h3>
+              )}
+              {this.state.respErrado ? errados : null}
+
+              {this.state.valendoJogo ? null : (
+                <Landing
+                  valendo={this.startGame}
+                  procurar={this.onSubmit}
+                  showEspecie={this.state.showEspecie}
+                  especie={this.state.especie}
+                  onChangeEsp={this.onChange}
+                  regras={this.mostrarRegras}
+                  birds={this.state.birds}
+                />
+              )}
+
+              {valendoConteudo}
+              {showEsp}
+              {this.state.valendoJogo ? (
+                <div className="certo-errado d-flex justify-center mt-2">
+                  <button className="text-light btn-success w-50">
+                    Certo : {this.state.certo}
+                  </button>
+                  <button className="text-light btn-danger w-50">
+                    Errado : {this.state.errado}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
       </div>
     );
