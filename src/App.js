@@ -38,6 +38,7 @@ import maritacaDeCabecaAzul from "./pics/maritaca-de-cabeca-azul.jpg";
 
 // Componentes
 import Landing from "./components/Landing";
+import Especies from "./components/Especies";
 
 import "./App.css";
 class Option extends React.Component {
@@ -414,28 +415,34 @@ export default class App extends Component {
         }
       }
       let randOpt1 = Math.floor(Math.random() * 4 + 0);
-      console.log(randOpt1);
+
+      let finalOptions = [];
+
       switch (randOpt1) {
-        case 0:
-          var op1 = options[0];
-          var op2 = options[1];
-          var op3 = options[2];
-          var op4 = options[3];
-        case 1:
-          var op1 = options[1];
-          var op2 = options[2];
-          var op3 = options[3];
-          var op4 = options[0];
-        case 2:
-          var op1 = options[2];
-          var op2 = options[3];
-          var op3 = options[1];
-          var op4 = options[0];
-        case 3:
-          var op1 = options[3];
-          var op2 = options[2];
-          var op3 = options[1];
-          var op4 = options[0];
+        case 0: //4
+          finalOptions.push(options[3]);
+          finalOptions.push(options[2]);
+          finalOptions.push(options[1]);
+          finalOptions.push(options[0]);
+          break;
+        case 1: //3
+          finalOptions.push(options[2]);
+          finalOptions.push(options[3]);
+          finalOptions.push(options[0]);
+          finalOptions.push(options[1]);
+          break;
+        case 2: //3
+          finalOptions.push(options[1]);
+          finalOptions.push(options[0]);
+          finalOptions.push(options[2]);
+          finalOptions.push(options[3]);
+          break;
+        case 3: //1
+          finalOptions.push(options[0]);
+          finalOptions.push(options[1]);
+          finalOptions.push(options[2]);
+          finalOptions.push(options[3]);
+          break;
       }
 
       valendoConteudo = (
@@ -450,11 +457,11 @@ export default class App extends Component {
               alt=""
             />
             <div className="card-body">
+              {/* {op2}
               {op1}
-              {op2}
-              {op3}
               {op4}
-
+              {op3} */}
+              {finalOptions}
               {/* {options} */}
             </div>
           </div>
@@ -506,7 +513,12 @@ export default class App extends Component {
     }
 
     return (
-      <div style={{ backgroundColor: "rgba(127, 105, 94, 0.85)" }}>
+      <div
+        style={{
+          backgroundColor: "rgba(127, 105, 94, 0.85)",
+          overflowY: "hidden"
+        }}
+      >
         <nav
           className="navbar navbar-light text-white"
           style={{ backgroundColor: "rgba(249, 201, 144, 0.7)" }}
@@ -615,6 +627,7 @@ export default class App extends Component {
                   </button>
                 </div>
               ) : null}
+              <Especies />
             </div>
           </div>
         </div>
