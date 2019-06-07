@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import "./App.css";
-//auto sugest
+//audio
+import Audio from "./mu.mp3";
+import Errou from "./errou.mp3";
+import Perdeu from "./perdeu.mp3";
+import Ganhou from "./ganhou.mp3";
+import Sound from "react-sound";
 
 // Fotos
 import anaca from "./pics/anaca.jpg";
@@ -72,9 +77,28 @@ class RespostaErrada extends React.Component {
         role="alert"
       >
         {this.props.resErr}
-        <button onClick={this.props.closeError} className="text-red ml-auto">
+        <button onClick={this.props.closeError} className="text-danger ml-auto">
           X
         </button>
+      </div>
+    );
+  }
+}
+
+class RespostaCerta extends React.Component {
+  render() {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 6,
+          width: "100px",
+          top: "-100px",
+          left: "270px"
+        }}
+        role="alert"
+      >
+        <i className="fas fa-check fa-5x text-center text-success" />
       </div>
     );
   }
@@ -90,6 +114,7 @@ export default class App extends Component {
       currentIndex: 0,
       alerta: false,
       respErrado: false,
+      respCerta: false,
       respostaEscritaErrada: "",
       currentBird: {},
       certo: 0,
@@ -319,6 +344,7 @@ export default class App extends Component {
       errado: 0,
       regras: false,
       respErrado: false,
+      respCerta: false,
       showEspecie: false,
       valendoJogo: false
     });
@@ -338,6 +364,7 @@ export default class App extends Component {
       showEspecie: false,
       regras: false,
       respErrado: false,
+      respCerta: false,
       currentBird: this.state.birds[rand]
     });
   };
@@ -356,13 +383,15 @@ export default class App extends Component {
       this.setState({
         certo: this.state.certo + 1,
         respErrado: false,
-        active: false
+        active: false,
+        respCerta: true
       });
     } else {
       this.setState({
         errado: this.state.errado + 1,
         respErrado: true,
         active: true,
+        respCerta: false,
 
         respostaEscritaErrada: `A especie certa era: ${correctAnswer}`
       });
@@ -375,7 +404,10 @@ export default class App extends Component {
     if (this.state.currentIndex + 1 === 10) {
       this.setState({
         alerta: true,
-        valendoJogo: false
+        valendoJogo: false,
+        respErrado: false,
+        active: false,
+        respCerta: false
       });
 
       return;
@@ -470,14 +502,41 @@ export default class App extends Component {
         </div>
       );
     }
+    let acertos = [];
+    if (this.state.respCerta) {
+      acertos.push(
+        <div>
+          <Sound
+            url={Audio}
+            playStatus={Sound.status.PLAYING}
+            playFromPosition={1600 /* in milliseconds */}
+            onLoading={this.handleSongLoading}
+            onPlaying={this.handleSongPlaying}
+            onFinishedPlaying={this.handleSongFinishedPlaying}
+          />
+          <RespostaCerta />
+        </div>
+      );
+    }
+
     let errados = [];
 
     if (this.state.respErrado) {
       errados.push(
-        <RespostaErrada
-          closeError={this.closeError}
-          resErr={this.state.respostaEscritaErrada}
-        />
+        <div>
+          <Sound
+            url={Errou}
+            playStatus={Sound.status.PLAYING}
+            playFromPosition={100 /* in milliseconds */}
+            onLoading={this.handleSongLoading}
+            onPlaying={this.handleSongPlaying}
+            onFinishedPlaying={this.handleSongFinishedPlaying}
+          />
+          <RespostaErrada
+            closeError={this.closeError}
+            resErr={this.state.respostaEscritaErrada}
+          />
+        </div>
       );
     }
     let showEsp;
@@ -516,7 +575,7 @@ export default class App extends Component {
       <div
         style={{
           backgroundColor: "rgba(127, 105, 94, 0.85)",
-          overflowY: "hidden"
+          overflow: "hidden"
         }}
       >
         <nav
@@ -569,31 +628,42 @@ export default class App extends Component {
           </div>
         </div>
         <div className={this.state.active ? "form password" : "form"}>
-          {/* <p>Email</p> */}
           <div className={this.state.active ? "control password" : "control"}>
-            <label
-              htmlFor="email"
-              className={
-                this.state.active ? "fa fa-envelope password" : "fa fa-envelope"
-              }
-            />
-          </div>
-
-          <div className={this.state.active ? "control password" : "control"}>
-            <label
-              htmlFor="password"
-              className={
-                this.state.active ? "fa fa-asterisk password" : "fa fa-asterisk"
-              }
-            />
-
             <div
               style={{ maxWidth: "450px", minHeight: "80vh" }}
               className="mr-auto ml-auto  "
             >
               {this.state.alerta ? (
-                <div className="alert alert-primary" role="alert">
-                  voce acertou: {this.state.certo}
+                <div
+                  className="alert alert-primary d-flex text-center"
+                  role="alert"
+                >
+                  voce acertou:{" "}
+                  {this.state.certo / 10 >= 0.5 ? (
+                    <div>
+                      <Sound
+                        url={Ganhou}
+                        playStatus={Sound.status.PLAYING}
+                        playFromPosition={100 /* in milliseconds */}
+                        onLoading={this.handleSongLoading}
+                        onPlaying={this.handleSongPlaying}
+                        onFinishedPlaying={this.handleSongFinishedPlaying}
+                      />{" "}
+                      {this.state.certo * 10}%
+                    </div>
+                  ) : (
+                    <div>
+                      <Sound
+                        url={Perdeu}
+                        playStatus={Sound.status.PLAYING}
+                        playFromPosition={100 /* in milliseconds */}
+                        onLoading={this.handleSongLoading}
+                        onPlaying={this.handleSongPlaying}
+                        onFinishedPlaying={this.handleSongFinishedPlaying}
+                      />
+                      {this.state.certo * 10}%
+                    </div>
+                  )}
                 </div>
               ) : null}
               {this.state.valendoJogo ? null : (
@@ -602,6 +672,7 @@ export default class App extends Component {
                 </h3>
               )}
               {this.state.respErrado ? errados : null}
+              {this.state.respCerta ? acertos : null}
 
               {this.state.valendoJogo ? null : (
                 <Landing
