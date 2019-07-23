@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../autosuggest.css";
-import Autosuggest from "react-autosuggest";
+
 class Landing extends Component {
   render() {
     return (
@@ -131,4 +131,5 @@ class Landing extends Component {
     );
   }
 }
+
 export default Landing;
